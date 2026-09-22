@@ -1,9 +1,8 @@
 package net.lionarius.skinrestorer.skin.provider.base;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.yggdrasil.response.MinecraftProfilePropertiesResponse;
-import com.mojang.authlib.yggdrasil.response.NameAndId;
-import com.mojang.util.UndashedUuid;
+import com.mojang.authlib.services.response.MinecraftProfilePropertiesResponse;
+import com.mojang.authlib.services.response.NameAndId;
 import net.lionarius.skinrestorer.util.JsonUtils;
 import net.lionarius.skinrestorer.util.WebUtils;
 
@@ -13,9 +12,9 @@ import java.net.http.HttpRequest;
 import java.util.UUID;
 
 public abstract class YggdrasilSkinProvider extends ProfileSkinProvider {
-    protected abstract URI baseSessionServerUrl();
+    protected abstract URI profileByIdUri(UUID uuid);
 
-    protected abstract URI baseServicesServerUrl();
+    protected abstract URI profileByNameUri(String name);
 
     @Override
     protected UUID lookupUuid(String username) throws Exception {
@@ -25,9 +24,7 @@ public abstract class YggdrasilSkinProvider extends ProfileSkinProvider {
     @Override
     protected GameProfile fetchProfileWithProperties(UUID uuid) throws IOException {
         var request = HttpRequest.newBuilder()
-                .uri(this.baseSessionServerUrl()
-                        .resolve("/session/minecraft/profile/")
-                        .resolve(UndashedUuid.toString(uuid) + "?unsigned=false"))
+                .uri(URI.create(this.profileByIdUri(uuid) + "?unsigned=false"))
                 .GET()
                 .build();
 
@@ -41,12 +38,8 @@ public abstract class YggdrasilSkinProvider extends ProfileSkinProvider {
     }
 
     protected NameAndId getProfile(final String name) throws IOException {
-        var request = HttpRequest.newBuilder()
-                .uri(this.baseServicesServerUrl()
-                        .resolve("/minecraft/profile/lookup/name/")
-                        .resolve(WebUtils.urlEncode(name)))
-                .GET()
-                .build();
+        var request =
+                HttpRequest.newBuilder().uri(this.profileByNameUri(name)).GET().build();
 
         var response = WebUtils.executeRequest(request);
         WebUtils.throwOnClientErrors(response);

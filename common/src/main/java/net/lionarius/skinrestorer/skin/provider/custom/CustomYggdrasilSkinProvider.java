@@ -2,6 +2,7 @@ package net.lionarius.skinrestorer.skin.provider.custom;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.util.UndashedUuid;
 import net.lionarius.skinrestorer.SkinRestorer;
 import net.lionarius.skinrestorer.config.provider.CacheConfig;
 import net.lionarius.skinrestorer.config.provider.custom.CustomYggdrasilProviderConfig;
@@ -13,6 +14,7 @@ import net.lionarius.skinrestorer.util.WebUtils;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class CustomYggdrasilSkinProvider extends YggdrasilSkinProvider {
     private final String providerName;
@@ -76,12 +78,14 @@ public final class CustomYggdrasilSkinProvider extends YggdrasilSkinProvider {
     }
 
     @Override
-    protected URI baseSessionServerUrl() {
-        return this.baseSessionServerUrl;
+    protected URI profileByIdUri(UUID uuid) {
+        return this.baseSessionServerUrl.resolve("/session/minecraft/profile/").resolve(UndashedUuid.toString(uuid));
     }
 
     @Override
-    protected URI baseServicesServerUrl() {
-        return this.baseServicesServerUrl;
+    protected URI profileByNameUri(String name) {
+        return this.baseServicesServerUrl
+                .resolve("/minecraft/profile/lookup/name/")
+                .resolve(WebUtils.urlEncode(name));
     }
 }
