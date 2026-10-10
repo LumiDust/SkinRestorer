@@ -15,6 +15,10 @@ permissions:
 
 jobs:
   build-and-attach:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.release.tag_name, 'gtnh') ||
+      contains(github.event.release.tag_name, '1.7.10')
     name: Build and attach GTNH JAR
     runs-on: ubuntu-latest
     env:
