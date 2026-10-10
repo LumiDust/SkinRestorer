@@ -16,7 +16,10 @@ permissions:
 jobs:
   # Existing manual publishing flow for the modern branch.
   release:
-    if: github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      !contains(inputs.tag, 'gtnh') &&
+      !contains(inputs.tag, '1.7.10')
     environment: release
     runs-on: ubuntu-latest
     steps:
